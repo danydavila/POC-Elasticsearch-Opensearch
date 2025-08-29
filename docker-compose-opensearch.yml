@@ -1,0 +1,32 @@
+version: "3.7"
+
+services:
+  opensearch:
+    image: opensearchproject/opensearch:2.19.3
+    container_name: opensearch-standalone
+    restart: always
+    hostname: os-standalone.local
+    environment:
+      # REQUIRED in 2.12+ even if security is disabled
+      OPENSEARCH_INITIAL_ADMIN_PASSWORD: "My!awesome-Password@2025"
+      # Standalone, no discovery/seed hosts needed
+      discovery.type: single-node
+      node.name: os-standalone
+      cluster.name: os-standalone
+      # Disable the Security plugin entirely (no SSL, no auth)
+      plugins.security.disabled: "true"
+      # JVM / process settings
+      OPENSEARCH_JAVA_OPTS: "-Xms16384m -Xmx16384m"
+      bootstrap.memory_lock: "true"
+      network.host: "0.0.0.0"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./os-data:/usr/share/opensearch/data:rw
+      - ./os-logs:/usr/share/opensearch/logs:rw
+    ports:
+      - 127.0.0.1:9207:9200
+      - 127.0.0.1:9600:9600
+
